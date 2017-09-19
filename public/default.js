@@ -13,8 +13,15 @@ var callButton = document.querySelector('.callButton');
 
 var servers = {
   'iceServers': [{
-    'urls': 'stun:stun.l.google.com:19302'
-  }]
+    'urls': 'turn:turnserver3dstreaming.centralus.cloudapp.azure.com:5349',
+    'username': 'user',
+    'credential': '3Dtoolkit072017',
+    'credentialType': 'password'
+  }],
+  'iceTransportPolicy': 'relay',
+  'optional': [
+    { 'DtlsSrtpKeyAgreement': true }
+  ]
 };
 
 var peerConnection = new RTCPeerConnection(servers);
@@ -22,17 +29,18 @@ initCamera(false, true);
 
 socket.emit('login', "David");
 
+
 callButton.addEventListener('click', (e) => {
   if (callButton.classList.contains('hangup')) {
     socket.emit('hangup')
   } else {
     peerConnection.createOffer((sessionDescription) => {
-      peerConnection.setLocalDescription(sessionDescription);    
+      peerConnection.setLocalDescription(sessionDescription);
       socket.emit('offer', sessionDescription);
-  
+
     }, (error) => {
       console.log('Create offer error: ' + error);
-  
+
     });
   }
 })
@@ -56,40 +64,6 @@ function initCamera(useAudio, useVideo) {
   }, (err) => {
     console.log('navigator.getUserMedia error: ', error);
   })
-}
-
-function requestTurn() {
-  if (location.hostname !== 'localhost') { 
-    return;
-  }
-
-  var turnUrl = 'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913';
-  var turnExists = false;
-  for (var i in servers.iceServers) {
-    if (servers.iceServers[i].url.substr(0, 5) === 'turn:') {
-      turnExists = true;
-      turnReady = true;
-      break;
-    }
-  }
-  if (!turnExists) {
-    console.log('Getting TURN server from ', turnURL);
-    // No TURN server. Get one from computeengineondemand.appspot.com:
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var turnServer = JSON.parse(xhr.responseText);
-        console.log('Got TURN server: ', turnServer);
-        servers.iceServers.push({
-          'url': 'turn:' + turnServer.username + '@' + turnServer.turn,
-          'credential': turnServer.password
-        });
-        turnReady = true;
-      }
-    };
-    xhr.open('GET', turnURL, true);
-    xhr.send();
-  }
 }
 
 peerConnection.onaddstream = () => {
@@ -149,7 +123,7 @@ socket.on('offer', (offer) => {
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
-    callButton.classList.add('hangup');    
+    callButton.classList.add('hangup');
     socket.emit('answer', sessionDescription);
   },
     (error) => {
@@ -167,20 +141,20 @@ socket.on('candidate', (candidate) => {
 });
 
 socket.on('answer', (answer) => {
-  callButton.classList.add('hangup');    
+  callButton.classList.add('hangup');
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
 socket.on('hangup', () => {
   // TBD
-  callButton.classList.remove('hangup');    
+  callButton.classList.remove('hangup');
 });
 
 socket.on('bye', () => {
   peerConnection.setRemoteDescription();
   remoteVideo.src = "";
-  callButton.classList.remove('hangup'); 
-  callButton.disabled = true;    
+  callButton.classList.remove('hangup');
+  callButton.disabled = true;
   peerStatus.classList.remove('online');
   peerInfo.innerText = "";
 });

@@ -76,7 +76,6 @@ html,body {
 .remoteVideo {
     grid-column: 1;
     grid-row: 1;
-    transform: scaleX(-1);
     object-fit: cover;
     background-color: black;  
     width: 100%;

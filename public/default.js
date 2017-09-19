@@ -11,7 +11,12 @@ var peerStatus = document.querySelector('.peer.status');
 var joinButton = document.querySelector('.joinButton');
 var callButton = document.querySelector('.callButton');
 
-var servers = {}
+var servers = {
+  'iceServers': [{
+    'urls': 'stun:stun.l.google.com:19302'
+  }]
+};
+
 var peerConnection = new RTCPeerConnection(servers);
 initCamera(false, true);
 
@@ -47,6 +52,43 @@ function initCamera(useAudio, useVideo) {
   }, (err) => {
     console.log('navigator.getUserMedia error: ', error);
   })
+}
+
+
+
+
+function requestTurn() {
+  if (location.hostname !== 'localhost') { 
+    return;
+  }
+
+  var turnUrl = 'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913';
+  var turnExists = false;
+  for (var i in servers.iceServers) {
+    if (servers.iceServers[i].url.substr(0, 5) === 'turn:') {
+      turnExists = true;
+      turnReady = true;
+      break;
+    }
+  }
+  if (!turnExists) {
+    console.log('Getting TURN server from ', turnURL);
+    // No TURN server. Get one from computeengineondemand.appspot.com:
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var turnServer = JSON.parse(xhr.responseText);
+        console.log('Got TURN server: ', turnServer);
+        servers.iceServers.push({
+          'url': 'turn:' + turnServer.username + '@' + turnServer.turn,
+          'credential': turnServer.password
+        });
+        turnReady = true;
+      }
+    };
+    xhr.open('GET', turnURL, true);
+    xhr.send();
+  }
 }
 
 peerConnection.onaddstream = () => {
@@ -134,5 +176,6 @@ socket.on('bye', () => {
   peerStatus.classList.remove('online');
   peerInfo.innerText = "";
 })
+
 
 

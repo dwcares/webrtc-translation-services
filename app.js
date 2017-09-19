@@ -60,6 +60,10 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('candidate', candidate);        
     });
 
+    socket.emit('hangup', () => {
+        // TBD
+    });
+
     socket.on('disconnect', () => {
         console.log('disconnect: ' + socket.id);
 

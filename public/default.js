@@ -23,14 +23,18 @@ initCamera(false, true);
 socket.emit('login', "David");
 
 callButton.addEventListener('click', (e) => {
-  peerConnection.createOffer((sessionDescription) => {
-    peerConnection.setLocalDescription(sessionDescription);    
-    socket.emit('offer', sessionDescription);
-
-  }, (error) => {
-    console.log('Create offer error: ' + error);
-
-  });
+  if (callButton.classList.contains('hangup')) {
+    socket.emit('hangup')
+  } else {
+    peerConnection.createOffer((sessionDescription) => {
+      peerConnection.setLocalDescription(sessionDescription);    
+      socket.emit('offer', sessionDescription);
+  
+    }, (error) => {
+      console.log('Create offer error: ' + error);
+  
+    });
+  }
 })
 
 function initCamera(useAudio, useVideo) {
@@ -53,9 +57,6 @@ function initCamera(useAudio, useVideo) {
     console.log('navigator.getUserMedia error: ', error);
   })
 }
-
-
-
 
 function requestTurn() {
   if (location.hostname !== 'localhost') { 
@@ -148,7 +149,7 @@ socket.on('offer', (offer) => {
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
-    callButton.disabled = true;      
+    callButton.classList.add('hangup');    
     socket.emit('answer', sessionDescription);
   },
     (error) => {
@@ -163,19 +164,26 @@ socket.on('candidate', (candidate) => {
     candidate: candidate.candidate
   });
   peerConnection.addIceCandidate(iceCandidate);
-})
+});
 
 socket.on('answer', (answer) => {
-  callButton.disabled = true;  
+  callButton.classList.add('hangup');    
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-})
+});
+
+socket.on('hangup', () => {
+  // TBD
+  callButton.classList.remove('hangup');    
+});
 
 socket.on('bye', () => {
   peerConnection.setRemoteDescription();
   remoteVideo.src = "";
+  callButton.classList.remove('hangup'); 
+  callButton.disabled = true;    
   peerStatus.classList.remove('online');
   peerInfo.innerText = "";
-})
+});
 
 
 

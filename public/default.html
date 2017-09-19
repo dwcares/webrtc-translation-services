@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Live Translate</title>
-        <link rel="stylesheet" href="default.css" />
-    </head>
-    <body>
-        <div>
+
+<head>
+    <title>Live Translate</title>
+    <link rel="stylesheet" href="default.css" />
+</head>
+
+<body>
+    <div class="view">
+        <video class="remoteVideo" autoplay></video>
+        <video class="localVideo" autoplay></video>
+        <button class="callButton" disabled></button>
+
+        <div class="status">
             <div class="client info"></div>
             <div class="client status"></div>
             <div class="peer info"></div>
             <div class="peer status"></div>
         </div>
+    </div>
 
-        <video class="localVideo" autoplay></video>
-        <video class="remoteVideo" autoplay></video>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="lib/webrtc-adapter.js"></script>
+    <script src="default.js"></script>
+</body>
 
-        <button class="callButton" disabled>Call</button>
-        
-        <script src="/socket.io/socket.io.js"></script>        
-        <script src="lib/webrtc-adapter.js"></script>        
-        <script src="default.js"></script>
-    </body>
 </html>

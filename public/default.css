@@ -1,0 +1,25 @@
+body {
+    font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
+}
+
+h1 {
+    font-weight: 100;
+    letter-spacing: 1px;
+}
+
+.info {
+    size: 9pt;
+    color: gray;
+}
+
+.status {
+    background-color: darkgrey;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+
+.status.online {
+    background-color: lime;
+
+}

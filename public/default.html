@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebRTC Demo</title>
+        <link rel="stylesheet" href="default.css" />
+    </head>
+    <body>
+        <h1>WebRTC Demo</h1>
+        <div>
+            <div class="client info"></div>
+            <div class="client status"></div>
+            <div class="peer info"></div>
+            <div class="peer status"></div>
+        </div>
+
+        <video class="localVideo" autoplay></video>
+        <video class="remoteVideo" autoplay></video>
+
+        <button class="callButton" disabled>Call</button>
+        
+        <script src="/socket.io/socket.io.js"></script>        
+        <script src="lib/webrtc-adapter.js"></script>        
+        <script src="default.js"></script>
+    </body>
+</html>

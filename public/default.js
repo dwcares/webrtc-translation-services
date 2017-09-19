@@ -159,5 +159,3 @@ socket.on('bye', () => {
   peerInfo.innerText = "";
 });
 
-
-

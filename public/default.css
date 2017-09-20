@@ -138,9 +138,8 @@ body {
 .localVideo {
     grid-column: 1;
     grid-row: 1;
-
+    transform: scaleX(-1);
     height: 15vw;
-
     justify-self: end;
     align-self: end;
 
@@ -149,9 +148,7 @@ body {
 .remoteVideo {
     grid-column: 1;
     grid-row: 1;
-
     object-fit: cover;
-
     background-color: black;  
     width: 100%;
     height: 100%;

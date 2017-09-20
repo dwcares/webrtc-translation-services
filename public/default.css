@@ -1,12 +1,84 @@
 html,body {
     font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
+    font-weight: 100;
 
     width: 100%;
     height: 100%;
     margin: 0px;
+
+   
 }
 
+body {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+.login {
+    grid-column: 1;
+    grid-row: 1;
+
+    z-index: 11;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-flow: column;
+    background-color: black;
+    
+	align-content: center;
+	justify-content: center;
+}
+
+    .login .loginForm {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+
+        width: 500px;
+        max-height: 400px;
+        height: 40%;
+        align-self: center;
+
+        background-color: grey;
+    }
+
+    .login .userNameInput {
+        height: 35px;
+        width: 200px;
+
+        font-size: 20pt;
+
+
+    }
+
+    .login span {
+        width: 200px;
+        margin-top: 20px;
+    }
+
+    .login .langSelect {
+        height: 20px;
+        width: 80px;
+
+        font-size: 11pt;
+    }
+
+    .login .connectButton {
+        height: 20px;
+        width: 80px;
+        margin: 0;
+
+        font-size: 11pt;
+        float: right;
+    }
+
 .view {
+    grid-column: 1;
+    grid-row: 1;
+
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;

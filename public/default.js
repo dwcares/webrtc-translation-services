@@ -145,9 +145,8 @@ socket.on('offer', (offer) => {
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
-    StartRecognition('<INSERT_KEY>', 'en-US', (recognizer) => {
 
-    });
+
     callButton.classList.add('hangup');
     socket.emit('answer', sessionDescription);
   },
@@ -167,6 +166,9 @@ socket.on('candidate', (candidate) => {
 
 socket.on('answer', (answer) => {
   callButton.classList.add('hangup');
+  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', 'en-US', (recognizer) => {
+    RecognizerStart(recognizer.SDK, recognizer)
+  });
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 

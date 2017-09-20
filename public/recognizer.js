@@ -92,6 +92,7 @@ function Initialize(onComplete) {
   }
   
   function UpdateStatus(status) {
+      console.log(status);
   }
   
   function UpdateRecognizedHypothesis(text) {

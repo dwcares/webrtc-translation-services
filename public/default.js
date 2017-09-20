@@ -15,6 +15,8 @@ var loginPage = document.querySelector('.login');
 var loginForm = document.querySelector('.loginForm');
 var loginUserName = document.querySelector('.usernameInput');
 
+var langSelect = document.querySelector('.langSelect');
+
 
 var servers = {
   'iceServers': [{
@@ -101,6 +103,10 @@ peerConnection.onicecandidate = (e) => {
   console.log('onIceCandidate');
 
   if (e.candidate) {
+    StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', langSelect.value, (recognizer) => {
+      RecognizerStart(recognizer.SDK, recognizer)
+      console.log(langSelect.value);
+    });
     console.log('candidate: ' + e.candidate);
 
     socket.emit('candidate',
@@ -146,7 +152,6 @@ socket.on('offer', (offer) => {
     peerConnection.setLocalDescription(sessionDescription);
 
 
-
     callButton.classList.add('hangup');
     socket.emit('answer', sessionDescription);
   },
@@ -166,9 +171,7 @@ socket.on('candidate', (candidate) => {
 
 socket.on('answer', (answer) => {
   callButton.classList.add('hangup');
-  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', 'en-US', (recognizer) => {
-    RecognizerStart(recognizer.SDK, recognizer)
-  });
+
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 

@@ -83,8 +83,12 @@ function Initialize(onComplete) {
   }
   
   
-  function Setup() {
-    recognizer = RecognizerSetup(SDK, SDK.RecognitionMode.Conversation, 'en-US', SDK.SpeechResultFormat[formatOptions.value], key.value);
+  function StartRecognition(key, lang, onComplete) {
+      Initialize((SDK) => {
+        recognizer = RecognizerSetup(SDK, SDK.RecognitionMode.Conversation, lang, SDK.SpeechResultFormat.Simple, key);
+
+        onComplete(recognizer);
+      });
   }
   
   function UpdateStatus(status) {

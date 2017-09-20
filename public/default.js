@@ -145,6 +145,9 @@ socket.on('offer', (offer) => {
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
+    StartRecognition('<INSERT_KEY>', 'en-US', (recognizer) => {
+
+    });
     callButton.classList.add('hangup');
     socket.emit('answer', sessionDescription);
   },

@@ -13,6 +13,7 @@ var callButton = document.querySelector('.callButton');
 
 var loginPage = document.querySelector('.login');
 var loginForm = document.querySelector('.loginForm');
+var loginUserName = document.querySelector('.usernameInput');
 
 
 var servers = {
@@ -31,9 +32,11 @@ var servers = {
 var peerConnection = new RTCPeerConnection(servers);
 
 loginForm.addEventListener('submit', e => {
-  initCamera(false, true);
-  
-  socket.emit('login', 'David');
+  var username = loginUserName.value;
+  if (username.length > 0) {
+    initCamera(false, true);
+    socket.emit('login', username);
+  }
 
   e.preventDefault();
 });
@@ -142,6 +145,8 @@ socket.on('offer', (offer) => {
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
+
+
     callButton.classList.add('hangup');
     socket.emit('answer', sessionDescription);
   },
@@ -161,6 +166,9 @@ socket.on('candidate', (candidate) => {
 
 socket.on('answer', (answer) => {
   callButton.classList.add('hangup');
+  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', 'en-US', (recognizer) => {
+    RecognizerStart(recognizer.SDK, recognizer)
+  });
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 

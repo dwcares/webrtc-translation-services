@@ -13,6 +13,7 @@ var callButton = document.querySelector('.callButton');
 
 var loginPage = document.querySelector('.login');
 var loginForm = document.querySelector('.loginForm');
+var loginUserName = document.querySelector('.usernameInput');
 
 
 var servers = {
@@ -31,9 +32,11 @@ var servers = {
 var peerConnection = new RTCPeerConnection(servers);
 
 loginForm.addEventListener('submit', e => {
-  initCamera(false, true);
-  
-  socket.emit('login', 'David');
+  var username = loginUserName.value;
+  if (username.length > 0) {
+    initCamera(false, true);
+    socket.emit('login', username);
+  }
 
   e.preventDefault();
 });

@@ -11,6 +11,10 @@ var peerStatus = document.querySelector('.peer.status');
 var joinButton = document.querySelector('.joinButton');
 var callButton = document.querySelector('.callButton');
 
+var loginPage = document.querySelector('.login');
+var loginForm = document.querySelector('.loginForm');
+
+
 var servers = {
   'iceServers': [{
     'urls': 'turn:turnserver3dstreaming.centralus.cloudapp.azure.com:5349',
@@ -25,10 +29,14 @@ var servers = {
 };
 
 var peerConnection = new RTCPeerConnection(servers);
-initCamera(false, true);
 
-socket.emit('login', "David");
+loginForm.addEventListener('submit', e => {
+  initCamera(false, true);
+  
+  socket.emit('login', 'David');
 
+  e.preventDefault();
+});
 
 callButton.addEventListener('click', (e) => {
   if (callButton.classList.contains('hangup')) {
@@ -66,6 +74,16 @@ function initCamera(useAudio, useVideo) {
   })
 }
 
+function show(element) {
+  element.style.visibility = 'visible';
+}
+
+function hide(element) {
+  element.style.visibility = 'hidden';  
+}
+
+//////
+
 peerConnection.onaddstream = () => {
   console.log('Remote stream added.');
   remoteVideo.src = window.URL.createObjectURL(event.stream);
@@ -94,6 +112,7 @@ peerConnection.onicecandidate = (e) => {
 
 socket.on('connected', (clientId) => {
   console.log('Connected: ' + clientId);
+  hide(loginPage);
 
   clientInfo.innerText = clientId;
 

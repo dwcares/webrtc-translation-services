@@ -32,14 +32,13 @@ io.on('connection', (socket) => {
             socket.broadcast.to(roomId).emit('new-client', userInfo.name, userInfo.lang, socket.id);
             
             socket.join(roomId);   
-            io.sockets.in(roomId).emit('ready', roomId, socket.id);             
+            io.sockets.in(roomId).emit('ready', roomId);             
         } else {
             roomId = 'Room_' + socket.id;
             console.log('Creating room: ' + roomId);
             socket.join(roomId);  
             socket.emit('connected', socket.id);             
         }    
-
     });
 
     function findAvailableRoom() {
@@ -79,8 +78,8 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomId).emit('candidate', candidate);        
     });
 
-    socket.emit('endcall', () => {
-        // TBD
+    socket.on('bye', () => {
+        io.to(roomId).emit('bye');   
     });
 
     socket.on('disconnect', () => {

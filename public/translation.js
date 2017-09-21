@@ -28,7 +28,7 @@
 
   //TEXT TO SPEECH
   function create_audio(translated_text){
-      var speak_request_string = 'http://api.microsofttranslator.com/V2/Ajax.svc/Speak?text=' 
+      var speak_request_string = 'https://api.microsofttranslator.com/V2/Ajax.svc/Speak?text=' 
       + encodeURI(translated_text) + '&language=' + to_language + "&format=audio/mp3" + '&appid=' + auth;
       
       fetch(speak_request_string)

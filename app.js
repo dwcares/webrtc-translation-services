@@ -31,12 +31,12 @@ io.on('connection', (socket) => {
             socket.broadcast.to(roomId).emit('new-client', name, socket.id);
             
             socket.join(roomId);   
-            io.sockets.in(roomId).emit('ready');             
+            io.sockets.in(roomId).emit('ready', roomId, socket.id);             
         } else {
             roomId = 'Room_' + socket.id;
             console.log('Creating room: ' + roomId);
             socket.join(roomId);  
-            socket.emit('connected', socket.id); 
+            socket.emit('connected', socket.id);             
         }    
 
     });
@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomId).emit('candidate', candidate);        
     });
 
-    socket.emit('hangup', () => {
+    socket.emit('endcall', () => {
         // TBD
     });
 

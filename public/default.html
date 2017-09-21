@@ -39,6 +39,10 @@
             <div class="peer status"></div>
         </div>
     </div>
+    
+    <!-- Hidden canvas to grab screenshots for emotion detection -->
+    <canvas class="screenshotCanvas">
+    </canvas>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="lib/webrtc-adapter.js"></script>
@@ -56,6 +60,7 @@
     <script src="recognizer.js"></script>
     <script src="default.js"></script>
     <script src="translation.js"></script>
+    <script src="emotion.js"></script>
 </body>
 
 </html>

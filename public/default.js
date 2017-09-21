@@ -18,6 +18,8 @@ var loginForm = document.querySelector('.loginForm');
 var loginUserName = document.querySelector('.usernameInput');
 var loginLang = document.querySelector('.langSelect');
 
+var audioPlayer = document.querySelector('.audioPlayer');
+
 var myLang;
 var peerLang;
 var myId;
@@ -25,6 +27,8 @@ var myName;
 var peerName;
 
 var recognizer;
+
+var playbackQueue = [];
 
 var servers = {
   'iceServers': [{
@@ -56,7 +60,6 @@ loginForm.addEventListener('submit', e => {
 
 callButton.addEventListener('click', (e) => {
   if (callButton.classList.contains('hangup')) {
-    console.log('trying to hang up now!');
     socket.emit('bye');
   }
 });
@@ -88,8 +91,31 @@ function initCamera(useAudio, useVideo) {
     peerConnection.addStream(stream);
 
   }, (err) => {
-    console.log('navigator.getUserMedia error: ', error);
+    console.log('GetUserMedia error: ', error);
   })
+}
+
+function queueForPlayback(text, url) {
+  if (audioPlayer.duration && !audioPlayer.paused) {
+    playbackQueue.push({text: text, url: url});    
+  } else {
+    playTranslatedAudio(text, url);
+  }
+}
+
+function playTranslatedAudio(text, url) {
+  audioPlayer.src = url;
+}
+
+function getTranslatedAudioURL(text) {
+  
+  // TODO: Add fetch implementation for translated Audio
+
+  var promise = new Promise(function(resolve, reject) {
+      resolve('https://www.w3schools.com/html/horse.mp3');
+  });
+
+  return promise;
 }
 
 function stopCamera() {
@@ -105,7 +131,14 @@ function hide(element) {
   element.style.visibility = 'hidden';
 }
 
-//////
+audioPlayer.onended = function() {
+  var audioToPlay = playbackQueue.pop();
+  if (audioToPlay) playTranslatedAudio(audioToPlay.text, audioToPlay.url)
+}
+
+////////////////////////////////////
+////// Peer Connection Handlers
+////////////////////////////////////
 
 peerConnection.onaddstream = () => {
   console.log('Remote stream added.');
@@ -131,6 +164,10 @@ peerConnection.onicecandidate = (e) => {
       });
   }
 };
+
+////////////////////////////////////
+////// Socket.io handlers
+////////////////////////////////////
 
 function initSocket() {
 
@@ -161,8 +198,7 @@ function initSocket() {
   socket.on('ready', (roomId) => {
     console.log('Ready to go');
 
-    //if room id is equal to name id then ready to create offer
-
+    // First person who joined initiates the call
     if (roomId.split('Room_')[1] == myId) {
       console.log('sending_offer');
       sendOffer();
@@ -203,6 +239,12 @@ function initSocket() {
     peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
   });
 
+  socket.on('new-translation', (translatedText) => {
+    getTranslatedAudioURL(translatedText).then(function(url) {
+      queueForPlayback(translatedText, url);
+    });
+  
+  });
 
   socket.on('bye', () => {
     remoteVideo.src = '';

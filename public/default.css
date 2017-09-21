@@ -235,3 +235,7 @@ h1 {
     background-color: lime;
 
 }
+
+.audioPlayer {
+    display: none;
+}

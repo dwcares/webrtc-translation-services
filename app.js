@@ -78,6 +78,12 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomId).emit('candidate', candidate);        
     });
 
+    socket.on('new-translation', (translatedText) => {
+        console.log('new-translation: ' + translatedText);
+
+        socket.broadcast.to(roomId).emit('new-translation', translatedText);                
+    })
+
     socket.on('bye', () => {
         io.to(roomId).emit('bye');   
     });

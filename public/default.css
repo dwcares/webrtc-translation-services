@@ -126,6 +126,21 @@ body {
     height: 100%; 
 }
 
+.waiting {
+    z-index: 10;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    opacity: .5;
+}
+
+    .waiting.hidden {
+        display:none;
+    }
+
 .callButton {
     z-index: 10;
     grid-column: 1;
@@ -172,6 +187,7 @@ body {
 
     .callButton:disabled {
         background-color: grey;
+        opacity: 0;
     }
 
 .localVideo {

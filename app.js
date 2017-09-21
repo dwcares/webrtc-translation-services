@@ -5,60 +5,78 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
-var clients = [];
-
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/default.html');
 
 });
 
 io.on('connection', (socket) => {
-    socket.on('login', (name) => {
-        console.log('Login: ' + name);
+    var roomId;
+    socket.on('login', (userInfo) => {
+        console.log('Login: ' + userInfo.name);
 
-        var numClients = clients.length;
+        socket.name = userInfo.name;
+        socket.lang = userInfo.lang;
 
-        console.log(numClients + ' client(s)');
+        roomId = findAvailableRoom();
 
-        if (numClients === 0) {
-            console.log('Client ID ' + socket.id + ' connected');
-            
+        if (roomId) {
+            console.log('Joining room: ' + roomId);
             socket.emit('connected', socket.id); 
 
-            socket.name = name;           
-            clients.push(socket);
+            var roomClients = Object.keys(io.sockets.adapter.rooms[roomId].sockets);
+            var otherClient = io.sockets.sockets[roomClients[0]];
 
-        } else if (numClients === 1) {
-            console.log('Client ID ' + socket.id + ' connected');
+            socket.emit('new-client', otherClient.name, otherClient.lang, otherClient.id);
+
+            socket.broadcast.to(roomId).emit('new-client', userInfo.name, userInfo.lang, socket.id);
             
-            socket.emit('connected', socket.id);
-            socket.emit('new-client', clients[0].name, clients[0].id);
-            socket.broadcast.emit('new-client', name, socket.id);
-            
-            socket.name = name;           
-            clients.push(socket);
-            
-            io.emit('ready');            
-        } else { // max two clients
-            socket.emit('full');
-        }
+            socket.join(roomId);   
+            io.sockets.in(roomId).emit('ready');             
+        } else {
+            roomId = 'Room_' + socket.id;
+            console.log('Creating room: ' + roomId);
+            socket.join(roomId);  
+            socket.emit('connected', socket.id); 
+        }    
+
     });
+
+    function findAvailableRoom() {
+        var foundRoom = null;
+
+        var rooms = Object.keys(io.sockets.adapter.rooms);
+        
+        for (var i=0; i < rooms.length && !foundRoom; i++) {
+            var roomClients = io.sockets.adapter.rooms[rooms[i]];
+
+            if (roomClients.length < 1) {
+                // we shouldnt have empty rooms
+            } else if (roomClients.length < 2 && rooms[i].startsWith('Room_')) {
+                foundRoom = rooms[i];
+
+                console.log('Found room: ' + foundRoom);
+            }
+        }
+
+        return foundRoom;
+    }
 
     socket.on('offer', (offer) => {
         console.log('offer: ' + offer);
-        socket.broadcast.emit('offer', offer);
+        socket.broadcast.to(roomId).emit('offer', offer);
     });
 
     socket.on('answer', (answer) => {
         console.log('answer: ' + answer);
         
-        socket.broadcast.emit('answer', answer);
+        socket.broadcast.to(roomId).emit('answer', answer);
     })
 
     socket.on('candidate', (candidate)  => {
         console.log('candidate: ' + candidate);
         
-        socket.broadcast.emit('candidate', candidate);        
+        socket.broadcast.to(roomId).emit('candidate', candidate);        
     });
 
     socket.emit('hangup', () => {
@@ -68,10 +86,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('disconnect: ' + socket.id);
 
-        clients.splice(clients.indexOf(socket), 1);
-        
-
-        io.emit('bye');
+        io.to(roomId).emit('bye');
     });
 
 });

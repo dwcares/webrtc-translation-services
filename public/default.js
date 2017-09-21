@@ -14,7 +14,13 @@ var callButton = document.querySelector('.callButton');
 var loginPage = document.querySelector('.login');
 var loginForm = document.querySelector('.loginForm');
 var loginUserName = document.querySelector('.usernameInput');
+var loginLang = document.querySelector('.langSelect');
 
+var myLang;
+var peerLang;
+
+var myName;
+var peerName;
 
 var servers = {
   'iceServers': [{
@@ -33,9 +39,14 @@ var peerConnection = new RTCPeerConnection(servers);
 
 loginForm.addEventListener('submit', e => {
   var username = loginUserName.value;
+  var lang = loginLang.value;
   if (username.length > 0) {
     initCamera(false, true);
-    socket.emit('login', username);
+    
+    myName = username;
+    myLang = lang;
+
+    socket.emit('login', {name: username, lang: lang});
   }
 
   e.preventDefault();
@@ -122,8 +133,11 @@ socket.on('connected', (clientId) => {
   clientStatus.classList.add('online');
 });
 
-socket.on('new-client', (name, clientId) => {
-  console.log('New client: ' + clientId);
+socket.on('new-client', (name, lang, clientId) => {
+  console.log('New client: ' + clientId + ' name: ' + name + ' lang: ' + lang);
+
+  peerName = name;
+  peerLang = lang;
 
   peerInfo.innerText = clientId;
   peerStatus.classList.add('online');
@@ -166,7 +180,7 @@ socket.on('candidate', (candidate) => {
 
 socket.on('answer', (answer) => {
   callButton.classList.add('hangup');
-  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', 'en-US', (recognizer) => {
+  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', myLang , (recognizer) => {
     RecognizerStart(recognizer.SDK, recognizer)
   });
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));

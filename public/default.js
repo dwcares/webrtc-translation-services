@@ -43,18 +43,20 @@ loginForm.addEventListener('submit', e => {
 
 callButton.addEventListener('click', (e) => {
   if (callButton.classList.contains('hangup')) {
-    socket.emit('hangup')
-  } else {
+    console.log('trying to hang up now!');
+    socket.emit('endcall');
+  }
+});
+
+function sendOffer(){
     peerConnection.createOffer((sessionDescription) => {
       peerConnection.setLocalDescription(sessionDescription);
       socket.emit('offer', sessionDescription);
 
     }, (error) => {
       console.log('Create offer error: ' + error);
-
     });
-  }
-})
+}
 
 function initCamera(useAudio, useVideo) {
   var constraints = {
@@ -129,9 +131,15 @@ socket.on('new-client', (name, clientId) => {
   peerStatus.classList.add('online');
 });
 
-socket.on('ready', () => {
+socket.on('ready', (roomId, clientId) => {
   console.log('Ready to go');
 
+  //if room id is equal to name id then ready to create offer
+  console.log("room: " + roomId);
+  console.log("client: " + clientId);
+  // if (roomId == clientId){
+    sendOffer();     
+  // }
   callButton.disabled = false;
 });
 
@@ -172,8 +180,9 @@ socket.on('answer', (answer) => {
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 
-socket.on('hangup', () => {
+socket.on('endcall', () => {
   // TBD
+  console.log('hanging up');
   callButton.classList.remove('hangup');
 });
 

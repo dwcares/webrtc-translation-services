@@ -12,10 +12,11 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     var roomId;
-    socket.on('login', (name) => {
-        console.log('Login: ' + name);
+    socket.on('login', (userInfo) => {
+        console.log('Login: ' + userInfo.name);
 
-        socket.name = name;
+        socket.name = userInfo.name;
+        socket.lang = userInfo.lang;
 
         roomId = findAvailableRoom();
 
@@ -26,9 +27,9 @@ io.on('connection', (socket) => {
             var roomClients = Object.keys(io.sockets.adapter.rooms[roomId].sockets);
             var otherClient = io.sockets.sockets[roomClients[0]];
 
-            socket.emit('new-client', otherClient.name, otherClient.id);
+            socket.emit('new-client', otherClient.name, otherClient.lang, otherClient.id);
 
-            socket.broadcast.to(roomId).emit('new-client', name, socket.id);
+            socket.broadcast.to(roomId).emit('new-client', userInfo.name, userInfo.lang, socket.id);
             
             socket.join(roomId);   
             io.sockets.in(roomId).emit('ready', roomId, socket.id);             

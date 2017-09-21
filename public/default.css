@@ -126,6 +126,45 @@ body {
     height: 100%; 
 }
 
+#transcriptContainer {
+    z-index:10;
+    background-color: rgba(34, 33, 33, 0.6);
+    grid-column: 1;
+    grid-row: 1;
+    align-self: flex-end;
+    justify-self: center;
+    overflow: hidden;
+    clear: both;
+    width: 100%;
+  }
+  
+  #transcript {
+    color: white;
+    font-size: 20px;
+    width: 100%;
+    -webkit-transition: transform .3s;
+    transition: transform .3s;
+    line-height: 2.0em;
+    font-family: Helvetica, sans-serif;
+    text-align:center;
+  }
+
+  #measure {
+    display: block;
+  }
+
+.partnerInfo {
+    z-index: 10;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: center;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    opacity: .8;
+    font-size: 18px;
+}
+
 .waiting {
     z-index: 10;
     grid-column: 1;
@@ -145,7 +184,7 @@ body {
     z-index: 10;
     grid-column: 1;
     grid-row: 1;
-    align-self: end;
+    align-self: flex-start;
 
     margin: 20px;
     height: 50px;
@@ -196,8 +235,7 @@ body {
     transform: scaleX(-1);
     height: 15vw;
     justify-self: end;
-    align-self: end;
-
+    align-self: flex-start;
 }
 
 .remoteVideo {

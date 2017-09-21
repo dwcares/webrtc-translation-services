@@ -20,6 +20,11 @@ var loginLang = document.querySelector('.langSelect');
 
 var audioPlayer = document.querySelector('.audioPlayer');
 
+const transcriptBox = document.getElementById('transcript');
+const measure = document.getElementById('measure');
+const tPadd = window.getComputedStyle(measure, null).getPropertyValue('height');
+const tPadding = Number(tPadd.substr(0, tPadd.length-2));
+
 var myLang;
 var peerLang;
 var myId;
@@ -29,6 +34,29 @@ var peerName;
 var recognizer;
 
 var playbackQueue = [];
+
+// set height of the container dynamically
+document.getElementById('transcriptContainer').style.height = tPadding + 'px';
+
+// cache current height of transcript box
+let prevHeight = transcriptBox.clientHeight;
+
+// reset content after measuring height 
+transcriptBox.innerHTML = '';
+
+const observer = new MutationObserver((mutation) => {
+  const nextHeight = transcriptBox.clientHeight;
+  if (nextHeight > prevHeight) {
+    prevHeight = nextHeight;
+    transcriptBox.style.transform = `translateY(${tPadding - transcriptBox.clientHeight}px)`;
+  };
+});
+
+// start observing mutations
+observer.observe(transcriptBox, {childList: true});
+
+// const i = setInterval(() => {transcriptBox.innerHTML += "ANOTHER CAPTION HAS ARRIVED "}, 500);
+
 
 var servers = {
   'iceServers': [{
@@ -183,6 +211,7 @@ function initSocket() {
     console.log('New client: ' + clientId + ' name: ' + name + ' lang: ' + lang);
 
     peerName = name;
+    document.getElementById("partnerName").innerHTML = document.getElementById("partnerName").innerHTML + peerName;
     peerLang = lang;
 
     peerInfo.innerText = clientId;
@@ -238,7 +267,9 @@ function initSocket() {
       url.replace('http://', 'https://')
       queueForPlayback(translatedText, url);
     });
-  
+    console.log(translatedText);
+    console.log(transcriptBox);
+    transcriptBox.innerHTML += `${translatedText}<br/>`;
   });
 
   socket.on('bye', () => {

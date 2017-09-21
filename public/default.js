@@ -104,18 +104,9 @@ function queueForPlayback(text, url) {
 }
 
 function playTranslatedAudio(text, url) {
-  audioPlayer.src = url;
-}
-
-function getTranslatedAudioURL(text) {
-  
-  // TODO: Add fetch implementation for translated Audio
-
-  var promise = new Promise(function(resolve, reject) {
-      resolve('https://www.w3schools.com/html/horse.mp3');
-  });
-
-  return promise;
+  //var url = decodeURI(url);
+  //audioPlayer.src = 'https://www.w3schools.com/html/horse.mp3';
+  audioPlayer.src = decodeURI(url);
 }
 
 function stopCamera() {
@@ -164,6 +155,11 @@ peerConnection.onicecandidate = (e) => {
       });
   }
 };
+
+function UpdateRecognizedPhrase(json) {
+  var data = JSON.parse(json);
+  window.translateText(data.DisplayText, myLang, peerLang).then((res) => socket.emit('new-translation', res));
+}
 
 ////////////////////////////////////
 ////// Socket.io handlers
@@ -240,7 +236,7 @@ function initSocket() {
   });
 
   socket.on('new-translation', (translatedText) => {
-    getTranslatedAudioURL(translatedText).then(function(url) {
+    window.create_audio(translatedText, myLang, peerLang).then(function(url) {
       queueForPlayback(translatedText, url);
     });
   

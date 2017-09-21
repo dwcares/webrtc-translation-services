@@ -113,7 +113,9 @@ peerConnection.onicecandidate = (e) => {
 
   if (e.candidate) {
     console.log('candidate: ' + e.candidate);
-
+    StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', myLang, (recognizer) => {
+      RecognizerStart(recognizer.SDK, recognizer)
+    });
     socket.emit('candidate',
       {
         type: 'candidate',
@@ -155,7 +157,6 @@ socket.on('full', () => {
 
 socket.on('offer', (offer) => {
   peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-
   peerConnection.createAnswer().then((sessionDescription) => {
     peerConnection.setLocalDescription(sessionDescription);
 
@@ -180,9 +181,6 @@ socket.on('candidate', (candidate) => {
 
 socket.on('answer', (answer) => {
   callButton.classList.add('hangup');
-  StartRecognition('f3d216d172e3400abe7866a4c2d4a61c', myLang , (recognizer) => {
-    RecognizerStart(recognizer.SDK, recognizer)
-  });
   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
 });
 

@@ -9,7 +9,7 @@
 
 <body>
     <div class="login">
-        <form class="loginForm">
+        <form class="loginForm hidden">
             <div class="loginLogo"> </div>
             <input class="usernameInput" placeholder="Name" autofocus></input>
             <span> 
@@ -28,10 +28,10 @@
     </div>
     <div class="view">
         <video class="remoteVideo" autoplay></video>
-        <video class="localVideo" autoplay></video>
+        <video class="localVideo hidden" autoplay></video>
         <h1 class="waiting hidden">Waiting...</h1>        
         <button class="callButton" disabled></button>
-        <h5 class="partnerInfo" id="partnerName">You are chatting with: </h5>
+        <h5 class="partnerInfo" id="partnerName"></h5>
 
         <div class="status">
             <div class="client info"></div>
@@ -40,9 +40,9 @@
             <div class="peer status"></div>
         </div>
 
-        <div id="transcriptContainer">
-            <div id="transcript">
-                <span id="measure">LOADING<br/>...</span>
+        <div class="transcriptContainer hidden">
+            <div class="transcript">
+                <span class="measure">LOADING<br/>...</span>
             </div>
         </div>
     </div>

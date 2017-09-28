@@ -17,7 +17,7 @@ function getFrame(callback) {
 
     // Grab a frame from the video -> e.g. for cognitive services   
     var context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, 220, 150);
+    context.drawImage(localVideo, 0, 0, 220, 150);
 
     canvas.toBlob(callback)
 }

@@ -26,8 +26,15 @@ body {
 
     
 	align-content: center;
-	justify-content: center;
+    justify-content: center;
+    
+    transition: transform 350ms ease-in;    
 }
+
+    .login.hidden {
+        transition: transform 350ms ease-in;    
+        transform: translateX(calc(-100vw));        
+    }
 
     .login .loginForm {
         display: flex;
@@ -36,14 +43,20 @@ body {
         justify-content: center;
 
         width: 300px;
-        max-height: 500px;
-        height: 40%;
+        height: 300px;
         align-self: center;
 
         border-radius: 5px;        
         background-color: #333333;
 
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        transition: transform 200ms ease-out 400ms;
+        
+    }
+
+    .login .loginForm.hidden {
+        transform: translateY(calc(-50vh - 300px));
+        transition: transform 350ms ease-out;     
     }
 
     .login .loginLogo {
@@ -126,7 +139,7 @@ body {
     height: 100%; 
 }
 
-#transcriptContainer {
+.transcriptContainer {
     z-index:10;
     background-color: rgba(34, 33, 33, 0.6);
     grid-column: 1;
@@ -136,9 +149,16 @@ body {
     overflow: hidden;
     clear: both;
     width: 100%;
+
+    transition: transform 300ms ease-out 200ms;        
+  }
+
+  .transcriptContainer.hidden {
+    transition: transform 300ms ease-out 200ms;    
+    transform: translateY(100px);
   }
   
-  #transcript {
+  .transcript {
     color: white;
     font-size: 20px;
     width: 100%;
@@ -149,7 +169,7 @@ body {
     text-align:center;
   }
 
-  #measure {
+  .measure {
     display: block;
   }
 
@@ -232,10 +252,17 @@ body {
 .localVideo {
     grid-column: 1;
     grid-row: 1;
-    transform: scaleX(-1);
+
     height: 15vw;
     justify-self: end;
     align-self: flex-start;
+    
+    transform: scaleX(-1);
+    transition: transform 300ms ease-out 200ms;    
+}
+
+.localVideo.hidden {
+    transform: translateY(-30vh) scaleX(-1);
 }
 
 .remoteVideo {

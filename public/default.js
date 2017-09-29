@@ -1,29 +1,31 @@
 'use strict';
 
+const localVideo = document.querySelector('.localVideo');
+const remoteVideo = document.querySelector('.remoteVideo');
+const clientInfo = document.querySelector('.client.info');
+const clientStatus = document.querySelector('.client.status');
+const peerInfo = document.querySelector('.peer.info');
+const peerStatus = document.querySelector('.peer.status');
+const joinButton = document.querySelector('.joinButton');
+const callButton = document.querySelector('.callButton');
+const waitingText = document.querySelector('.waiting');
+
+const loginPage = document.querySelector('.login');
+const loginForm = document.querySelector('.loginForm');
+const loginUserName = document.querySelector('.usernameInput');
+const loginLang = document.querySelector('.langSelect');
+
+const audioPlayer = document.querySelector('.audioPlayer');
+
+const transcriptContainer = document.querySelector('.transcriptContainer')
+const transcriptBox = document.querySelector('.transcript');
+const measure = document.querySelector('.measure');
+const tPadd = window.getComputedStyle(measure, null).getPropertyValue('height');
+const tPadding = Number(tPadd.substr(0, tPadd.length - 2));
+let cachedTranscriptionHeight;
+
 var socket;
 var recognizer;
-
-var video = document.querySelector('.localVideo');
-var remoteVideo = document.querySelector('.remoteVideo');
-var clientInfo = document.querySelector('.client.info');
-var clientStatus = document.querySelector('.client.status');
-var peerInfo = document.querySelector('.peer.info');
-var peerStatus = document.querySelector('.peer.status');
-var joinButton = document.querySelector('.joinButton');
-var callButton = document.querySelector('.callButton');
-var waitingText = document.querySelector('.waiting');
-
-var loginPage = document.querySelector('.login');
-var loginForm = document.querySelector('.loginForm');
-var loginUserName = document.querySelector('.usernameInput');
-var loginLang = document.querySelector('.langSelect');
-
-var audioPlayer = document.querySelector('.audioPlayer');
-
-const transcriptBox = document.getElementById('transcript');
-const measure = document.getElementById('measure');
-const tPadd = window.getComputedStyle(measure, null).getPropertyValue('height');
-const tPadding = Number(tPadd.substr(0, tPadd.length-2));
 
 var myLang;
 var peerLang;
@@ -31,34 +33,9 @@ var myId;
 var myName;
 var peerName;
 
-var recognizer;
-
 var playbackQueue = [];
 
-// set height of the container dynamically
-document.getElementById('transcriptContainer').style.height = tPadding + 'px';
-
-// cache current height of transcript box
-let prevHeight = transcriptBox.clientHeight;
-
-// reset content after measuring height 
-transcriptBox.innerHTML = '';
-
-const observer = new MutationObserver((mutation) => {
-  const nextHeight = transcriptBox.clientHeight;
-  if (nextHeight > prevHeight) {
-    prevHeight = nextHeight;
-    transcriptBox.style.transform = `translateY(${tPadding - transcriptBox.clientHeight}px)`;
-  };
-});
-
-// start observing mutations
-observer.observe(transcriptBox, {childList: true});
-
-// const i = setInterval(() => {transcriptBox.innerHTML += "ANOTHER CAPTION HAS ARRIVED "}, 500);
-
-
-var servers = {
+var peerConnection = new RTCPeerConnection({
   'iceServers': [{
     'urls': 'turn:turnserver3dstreaming.centralus.cloudapp.azure.com:5349',
     'username': 'user',
@@ -69,9 +46,17 @@ var servers = {
   'optional': [
     { 'DtlsSrtpKeyAgreement': true }
   ]
-};
+});
 
-var peerConnection = new RTCPeerConnection(servers);
+
+show(loginForm);
+setupTranscription();
+
+callButton.addEventListener('click', (e) => {
+  if (callButton.classList.contains('hangup')) {
+    socket.emit('bye');
+  }
+});
 
 loginForm.addEventListener('submit', e => {
   var username = loginUserName.value;
@@ -81,16 +66,10 @@ loginForm.addEventListener('submit', e => {
     myName = username;
     myLang = lang;
     initSocket();
-
   }
   e.preventDefault();
 });
 
-callButton.addEventListener('click', (e) => {
-  if (callButton.classList.contains('hangup')) {
-    socket.emit('bye');
-  }
-});
 
 function sendOffer() {
   peerConnection.createOffer((sessionDescription) => {
@@ -109,11 +88,14 @@ function initCamera(useAudio, useVideo) {
   };
 
   navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+
     window.localStream = stream;
+
+    localVideo.onplay = (e) => show(localVideo);
     if (window.URL) {
-      video.src = window.URL.createObjectURL(stream);
+      localVideo.src = window.URL.createObjectURL(stream);
     } else {
-      video.src = stream;
+      localVideo.src = stream;
     }
 
     peerConnection.addStream(stream);
@@ -125,7 +107,7 @@ function initCamera(useAudio, useVideo) {
 
 function queueForPlayback(text, url) {
   if (audioPlayer.duration && !audioPlayer.paused) {
-    playbackQueue.push({text: text, url: url});    
+    playbackQueue.push({ text: text, url: url });
   } else {
     playTranslatedAudio(text, url);
   }
@@ -136,19 +118,63 @@ function playTranslatedAudio(text, url) {
 }
 
 function stopCamera() {
+  hide(localVideo);
   localStream.getVideoTracks()[0].stop();
-  video.src = '';
+  localVideo.src = '';
 }
 
 function show(element) {
   element.style.visibility = 'visible';
+  element.classList.remove('hidden')
 }
 
-function hide(element) {
-  element.style.visibility = 'hidden';
+function hide(element, defer) {
+  return new Promise((res, rej) => {
+    element.classList.add('hidden')
+
+    setTimeout((e) => {
+      element.style.visibility = 'hidden';
+      res();
+    }, defer);
+  })
 }
 
-audioPlayer.onended = function() {
+function setupTranscription() {
+  transcriptContainer.style.height = tPadding + 'px';
+  cachedTranscriptionHeight = transcriptBox.clientHeight;
+  
+  const observer = new MutationObserver((mutation) => {
+    const nextHeight = transcriptBox.clientHeight;
+    if (nextHeight > cachedTranscriptionHeight) {
+      cachedTranscriptionHeight = nextHeight;
+      transcriptBox.style.transform = `translateY(${tPadding - transcriptBox.clientHeight}px)`;
+    };
+  });
+  observer.observe(transcriptBox, { childList: true });
+    
+  transcriptBox.innerHTML = '';
+
+}
+
+function updateTranscription(text) {
+
+  if (transcriptContainer.classList.contains('hidden')) {
+    show(transcriptContainer);
+  }
+
+  transcriptBox.innerHTML += `${text}<br/>`;
+}
+
+function measureText(element) {
+  element.innerHTML = 'MEASURE';  
+  
+  element.style.height = tPadding + 'px';
+  element.innerHTML = '';
+
+  return element.clientHeight;
+}
+
+audioPlayer.onended = function () {
   var audioToPlay = playbackQueue.pop();
   if (audioToPlay) playTranslatedAudio(audioToPlay.text, audioToPlay.url)
 }
@@ -187,6 +213,7 @@ function UpdateRecognizedPhrase(json) {
   window.translateText(data.DisplayText, myLang, peerLang).then((res) => socket.emit('new-translation', res));
 }
 
+
 ////////////////////////////////////
 ////// Socket.io handlers
 ////////////////////////////////////
@@ -199,7 +226,7 @@ function initSocket() {
 
   socket.on('connected', (clientId) => {
     console.log('Connected: ' + clientId);
-    hide(loginPage);
+    hide(loginForm, 250).then(() => hide(loginPage, 400));
     myId = clientId;
     clientInfo.innerText = clientId;
 
@@ -263,18 +290,16 @@ function initSocket() {
   });
 
   socket.on('new-translation', (translatedText) => {
-    window.create_audio(translatedText, myLang, peerLang).then(function(url) {
+    window.create_audio(translatedText, myLang, peerLang).then(function (url) {
       url.replace('http://', 'https://')
       queueForPlayback(translatedText, url);
     });
     console.log(translatedText);
-    console.log(transcriptBox);
-    transcriptBox.innerHTML += `${translatedText}<br/>`;
+
+    updateTranscription(translatedText)
   });
 
   socket.on('bye', () => {
-    remoteVideo.src = '';
-    stopCamera();
     callButton.classList.remove('hangup');
     callButton.disabled = true;
     peerStatus.classList.remove('online');
@@ -282,7 +307,15 @@ function initSocket() {
     socket.disconnect();
     socket = null;
     RecognizerStop(recognizer.SDK, recognizer);
-    show(loginPage);
+    
+    hide(transcriptContainer);    
+    hide(localVideo, 500).then(() => {
+      stopCamera();
+      remoteVideo.src = '';        
+      show(loginPage);
+      show(loginForm);
+    });
+
   });
 
 

@@ -142,7 +142,7 @@ function hide(element, defer) {
 function setupTranscription() {
   transcriptContainer.style.height = tPadding + 'px';
   cachedTranscriptionHeight = transcriptBox.clientHeight;
-  transcriptContainer.innerHTML = '';
+  
   const observer = new MutationObserver((mutation) => {
     const nextHeight = transcriptBox.clientHeight;
     if (nextHeight > cachedTranscriptionHeight) {
@@ -151,12 +151,9 @@ function setupTranscription() {
     };
   });
   observer.observe(transcriptBox, { childList: true });
+    
+  transcriptBox.innerHTML = '';
 
-  setTimeout((e) => {
-    setInterval((e) => {
-      updateTranscription('update transcription update transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcriptionupdate transcription: ' + Date.now());
-    }, 1000);
-  }, 10000);
 }
 
 function updateTranscription(text) {

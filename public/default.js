@@ -10,6 +10,8 @@ const joinButton = document.querySelector('.joinButton');
 const callButton = document.querySelector('.callButton');
 const waitingText = document.querySelector('.waiting');
 
+const partnerName = document.querySelector('.partnerInfo');
+
 const loginPage = document.querySelector('.login');
 const loginForm = document.querySelector('.loginForm');
 const loginUserName = document.querySelector('.usernameInput');
@@ -238,7 +240,7 @@ function initSocket() {
     console.log('New client: ' + clientId + ' name: ' + name + ' lang: ' + lang);
 
     peerName = name;
-    document.getElementById("partnerName").innerHTML = document.getElementById("partnerName").innerHTML + peerName;
+    partnerName.innerHTML = peerName;
     peerLang = lang;
 
     peerInfo.innerText = clientId;
@@ -304,6 +306,7 @@ function initSocket() {
     callButton.disabled = true;
     peerStatus.classList.remove('online');
     peerInfo.innerText = '';
+    partnerName.innerText = '';
     socket.disconnect();
     socket = null;
     RecognizerStop(recognizer.SDK, recognizer);
